@@ -10,33 +10,24 @@
 html{color-scheme:light dark}
 img{max-width:100%}
 [hidden]{display:none!important}
-/* 版面:左對齊單欄、內文 68ch;流程用 6 步 × 3 泳道 grid,窄螢幕降成直列時間線 */
+/* 版面:左對齊單欄、內文 68ch;流程用 6 步 × 3 泳道 grid,窄螢幕降成直列時間線。深色為預設,明亮只在明確選擇時 */
 :root{
-  --bg:#F4F6F9; --surface:#FFFFFF; --fg:#17202B; --muted:#5B6878; --line:#D8DEE7;
-  --accent:#2448C8; --accent-soft:#E5EAFB;
-  --george:#3B7A48; --george-soft:#E2F0E5;
-  --sys:#6A5BA6; --sys-soft:#ECE8F7;
-  --warn:#B4601A; --warn-soft:#FBEBDC;
-  --display:'Chiron Sung HK','Noto Serif TC',serif;
-  --body:'Noto Sans TC',system-ui,-apple-system,sans-serif;
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#0E131A; --surface:#161D27; --fg:#E7ECF3; --muted:#A4AFBF; --line:#2B3542;
-    --accent:#8CA2FF; --accent-soft:#1E2A4F;
-    --george:#8CCB96; --george-soft:#1C3322;
-    --sys:#B8A9EE; --sys-soft:#2A2444;
-    --warn:#F0A562; --warn-soft:#3E2A16;
-    color-scheme:dark;
-  }
-}
-:root[data-theme="dark"]{
   --bg:#0E131A; --surface:#161D27; --fg:#E7ECF3; --muted:#A4AFBF; --line:#2B3542;
-  --accent:#8CA2FF; --accent-soft:#1E2A4F;
+  --accent:#8CA2FF; --accent-soft:#1E2A4F; --on-accent:#0E131A;
   --george:#8CCB96; --george-soft:#1C3322;
   --sys:#B8A9EE; --sys-soft:#2A2444;
   --warn:#F0A562; --warn-soft:#3E2A16;
+  --display:'Chiron Sung HK','Noto Serif TC',serif;
+  --body:'Noto Sans TC',system-ui,-apple-system,sans-serif;
   color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --bg:#F4F6F9; --surface:#FFFFFF; --fg:#17202B; --muted:#5B6878; --line:#D8DEE7;
+  --accent:#2448C8; --accent-soft:#E5EAFB; --on-accent:#FFFFFF;
+  --george:#3B7A48; --george-soft:#E2F0E5;
+  --sys:#6A5BA6; --sys-soft:#ECE8F7;
+  --warn:#B4601A; --warn-soft:#FBEBDC;
+  color-scheme:light;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.7;
@@ -122,7 +113,7 @@ section{padding-block:2.5rem;border-top:1px solid var(--line);display:grid;gap:1
 .decide textarea:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .decide li.done{border-color:var(--george)}
 .bar{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
-button{font:inherit;font-weight:500;padding:.55rem 1rem;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+button{font:inherit;font-weight:500;padding:.55rem 1rem;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);cursor:pointer}
 button.ghost{background:transparent;color:var(--accent)}
 button:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
 .toast{font-size:.88rem;color:var(--muted)}
