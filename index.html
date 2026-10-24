@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>George 協作啟動</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chiron+Sung+HK:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+html{color-scheme:light dark}
+img{max-width:100%}
+[hidden]{display:none!important}
+/* 版面:左對齊單欄、內文 68ch;流程用 6 步 × 3 泳道 grid,窄螢幕降成直列時間線 */
+:root{
+  --bg:#F4F6F9; --surface:#FFFFFF; --fg:#17202B; --muted:#5B6878; --line:#D8DEE7;
+  --accent:#2448C8; --accent-soft:#E5EAFB;
+  --george:#3B7A48; --george-soft:#E2F0E5;
+  --sys:#6A5BA6; --sys-soft:#ECE8F7;
+  --warn:#B4601A; --warn-soft:#FBEBDC;
+  --display:'Chiron Sung HK','Noto Serif TC',serif;
+  --body:'Noto Sans TC',system-ui,-apple-system,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E131A; --surface:#161D27; --fg:#E7ECF3; --muted:#A4AFBF; --line:#2B3542;
+    --accent:#8CA2FF; --accent-soft:#1E2A4F;
+    --george:#8CCB96; --george-soft:#1C3322;
+    --sys:#B8A9EE; --sys-soft:#2A2444;
+    --warn:#F0A562; --warn-soft:#3E2A16;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E131A; --surface:#161D27; --fg:#E7ECF3; --muted:#A4AFBF; --line:#2B3542;
+  --accent:#8CA2FF; --accent-soft:#1E2A4F;
+  --george:#8CCB96; --george-soft:#1C3322;
+  --sys:#B8A9EE; --sys-soft:#2A2444;
+  --warn:#F0A562; --warn-soft:#3E2A16;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 4rem}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:60rem;margin:0 auto}
+h1,h2,h3{font-family:var(--display);font-weight:700;line-height:1.25;text-wrap:balance;margin:0}
+h1{font-size:clamp(2rem,5vw,3rem)}
+h2{font-size:clamp(1.45rem,3vw,1.9rem)}
+h3{font-size:1.1rem}
+p{margin:0;max-width:68ch}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--bg);border-bottom:1px solid var(--line);
+  margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px))) 0 calc(-1 * max(16px,env(safe-area-inset-right,0px)));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+nav ul{list-style:none;margin:0 auto;padding:0;max-width:60rem;display:flex;gap:.25rem;overflow-x:auto;scrollbar-width:none}
+nav ul::-webkit-scrollbar{display:none}
+nav a{display:block;padding:.8rem .75rem;white-space:nowrap;color:var(--muted);text-decoration:none;font-size:.92rem;font-weight:500;border-bottom:2px solid transparent}
+nav a:hover,nav a:focus-visible{color:var(--fg);outline:none;border-bottom-color:var(--line)}
+header.hero{padding-block:3rem 2.25rem;display:grid;gap:1rem}
+header.hero .lede{font-size:1.12rem;color:var(--muted)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:1rem 2rem;align-items:start}
+.two>*{min-width:0}
+section{padding-block:2.5rem;border-top:1px solid var(--line);display:grid;gap:1.25rem}
+.chips{display:flex;flex-wrap:wrap;gap:.45rem;padding:0;margin:0;list-style:none}
+.chips li{padding:.3rem .7rem;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:.9rem}
+.chips li.on{background:var(--accent-soft);border-color:transparent;color:var(--accent);font-weight:500}
+.chips li.warn{background:var(--warn-soft);border-color:transparent;color:var(--warn);font-weight:700}
+.plain{list-style:none;margin:0;padding:0;display:grid;gap:.55rem}
+.plain li{display:grid;grid-template-columns:auto 1fr;gap:.6rem;align-items:baseline}
+.plain li b{font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+.note{border-left:3px solid var(--accent);padding:.25rem 0 .25rem 1rem;color:var(--muted)}
+.tag{display:inline-block;font-size:.75rem;letter-spacing:.06em;padding:.1rem .5rem;border-radius:4px;font-weight:500;vertical-align:middle}
+.tag.ok{background:var(--george-soft);color:var(--george)}
+.tag.plan{background:var(--warn-soft);color:var(--warn)}
+.tag.sys{background:var(--sys-soft);color:var(--sys)}
+
+/* 系統流程:五格水平 */
+.pipe{display:grid;grid-template-columns:repeat(5,1fr);gap:.5rem;list-style:none;margin:0;padding:0;counter-reset:p}
+.pipe li{min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.8rem .9rem;position:relative;display:grid;gap:.2rem;align-content:start}
+.pipe li::before{counter-increment:p;content:counter(p);font-family:var(--display);font-size:.85rem;color:var(--muted)}
+.pipe li strong{font-weight:700;font-size:.98rem}
+.pipe li span{font-size:.86rem;color:var(--muted);line-height:1.5}
+.pipe li.hot{border-color:var(--warn);background:var(--warn-soft)}
+.pipe li.hot span{color:var(--fg)}
+.fatigue{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:1rem 1.1rem}
+.fatigue>*{min-width:0}
+.fatigue svg{width:100%;height:auto;display:block;max-width:100%}
+.fatigue .cap{font-size:.86rem;color:var(--muted)}
+
+/* 泳道 */
+.lanes{display:grid;grid-template-columns:5.5rem repeat(6,1fr);grid-template-rows:auto auto auto;gap:.6rem .5rem;align-items:stretch}
+.lane{font-size:.8rem;letter-spacing:.08em;font-weight:700;align-self:center;padding:.35rem .5rem;border-radius:4px;text-align:center}
+.lane.l-sys{grid-row:1;background:var(--sys-soft);color:var(--sys)}
+.lane.l-dan{grid-row:2;background:var(--accent-soft);color:var(--accent)}
+.lane.l-geo{grid-row:3;background:var(--george-soft);color:var(--george)}
+.step{min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.7rem .75rem;display:grid;gap:.15rem;align-content:start;position:relative;border-top-width:3px}
+.step[data-lane="sys"]{grid-row:1;border-top-color:var(--sys)}
+.step[data-lane="dan"]{grid-row:2;border-top-color:var(--accent)}
+.step[data-lane="geo"]{grid-row:3;border-top-color:var(--george)}
+.step .n{font-family:var(--display);font-size:.8rem;color:var(--muted)}
+.step .who{display:none}
+.step strong{font-size:.95rem;line-height:1.35}
+.step span{font-size:.84rem;color:var(--muted);line-height:1.45}
+.step[data-i="1"]{grid-column:2}.step[data-i="2"]{grid-column:3}.step[data-i="3"]{grid-column:4}
+.step[data-i="4"]{grid-column:5}.step[data-i="5"]{grid-column:6}.step[data-i="6"]{grid-column:7}
+.legend{display:flex;flex-wrap:wrap;gap:1rem;font-size:.86rem;color:var(--muted)}
+.legend i{display:inline-block;width:.7rem;height:.7rem;border-radius:2px;vertical-align:-1px;margin-right:.35rem}
+
+/* 工具 */
+.tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:.75rem;list-style:none;margin:0;padding:0}
+.tools li{min-width:0;padding:.9rem 1rem;background:var(--surface);border:1px solid var(--line);border-radius:8px;display:grid;gap:.3rem;align-content:start}
+.tools strong{font-size:.98rem}
+.tools span{font-size:.88rem;color:var(--muted);line-height:1.5}
+
+/* 待決 */
+.decide{list-style:none;margin:0;padding:0;display:grid;gap:.6rem}
+.decide li{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.75rem .9rem;display:grid;grid-template-columns:auto 1fr;gap:.35rem .7rem;align-items:start}
+.decide label{font-weight:500;cursor:pointer}
+.decide input[type=checkbox]{width:1.15rem;height:1.15rem;margin:.3rem 0 0;accent-color:var(--accent)}
+.decide small{grid-column:2;color:var(--muted);font-size:.86rem}
+.decide textarea{grid-column:2;width:100%;min-height:2.4rem;resize:vertical;font:inherit;font-size:.92rem;padding:.4rem .6rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+.decide textarea:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.decide li.done{border-color:var(--george)}
+.bar{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
+button{font:inherit;font-weight:500;padding:.55rem 1rem;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+button.ghost{background:transparent;color:var(--accent)}
+button:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.toast{font-size:.88rem;color:var(--muted)}
+footer{padding-block:2rem 0;font-size:.82rem;color:var(--muted);border-top:1px solid var(--line)}
+pre.copy{display:none}
+@media (max-width:760px){
+  .two,.fatigue{grid-template-columns:1fr}
+  .pipe{grid-template-columns:1fr 1fr}
+  .pipe li:last-child{grid-column:1 / -1}
+  .lanes{display:flex;flex-direction:column}
+  .lane{display:none}
+  .step .who{display:inline-block;font-size:.72rem;letter-spacing:.08em;font-weight:700;padding:.05rem .45rem;border-radius:4px;justify-self:start;margin-bottom:.1rem}
+  .step[data-lane="sys"] .who{background:var(--sys-soft);color:var(--sys)}
+  .step[data-lane="dan"] .who{background:var(--accent-soft);color:var(--accent)}
+  .step[data-lane="geo"] .who{background:var(--george-soft);color:var(--george)}
+}
+@media (max-width:420px){.pipe{grid-template-columns:1fr}.pipe li:last-child{grid-column:auto}}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+</style>
+</head>
+<body>
+
+<nav aria-label="章節">
+  <ul>
+    <li><a href="#intro">Dan 的業務</a></li>
+    <li><a href="#system">廣告監控系統</a></li>
+    <li><a href="#work">交給 George 的兩件事</a></li>
+    <li><a href="#tools">工具</a></li>
+    <li><a href="#decide">今天要定的事</a></li>
+  </ul>
+</nav>
+
+<div class="wrap">
+<header class="hero">
+  <div class="eyebrow">2026-10-24 · Dan × George 協作啟動</div>
+  <h1>監控系統抓到素材疲乏,George 補素材,Dan 批量上線。</h1>
+  <p class="lede">今天講三件事:Dan 在做什麼、系統怎麼找出要補素材的帳號、George 接手哪兩段。最後一起把細節定下來。</p>
+</header>
+
+<section id="intro">
+  <div class="eyebrow">01 · Dan 的業務</div>
+  <h2>一人數位行銷代理,客戶在台灣、香港、日本</h2>
+  <div class="two">
+    <div>
+      <ul class="plain">
+        <li><b>投放</b><span>FB、IG、Google 廣告投放與文案</span></li>
+        <li><b>追蹤</b><span>GTM、Pixel、CAPI、GA4、LINE 埋設</span></li>
+        <li><b>自動化</b><span>n8n 工作流,把例行工作交給系統</span></li>
+        <li><b>影音</b><span>短影音企劃</span></li>
+      </ul>
+    </div>
+    <div>
+      <div class="eyebrow" style="margin-bottom:.4rem">服務產業</div>
+      <ul class="chips">
+        <li>長照看護</li><li>房地產</li><li>電商</li><li>太陽能儲能</li><li>室內設計</li><li>交友配對</li>
+        <li>餐飲</li><li>金融</li><li>音樂</li><li>宗教用品</li><li>ERP 科技</li>
+      </ul>
+    </div>
+  </div>
+  <p class="note">現在的方向:數據進 Google Sheet,判讀交給系統,人只處理例外。接下來客戶數會增加,靠系統加協作維穩。</p>
+</section>
+
+<section id="system">
+  <div class="eyebrow">02 · 廣告監控系統 <span class="tag plan">即將完成</span></div>
+  <h2>每天早上自動抓數據,標出異常的廣告組</h2>
+  <ol class="pipe">
+    <li><strong>n8n 每日抓數</strong><span>Meta 與 Google 廣告帳號的成效數據</span></li>
+    <li><strong>存進 Google Sheet</strong><span>原始資料一律落表,可回查</span></li>
+    <li><strong>系統判讀</strong><span>六種異常類型自動標記</span></li>
+    <li class="hot"><strong>素材需求清單</strong><span>被標「素材疲乏」的帳號進清單,等人補素材</span></li>
+    <li><strong>n8n 批量建廣告</strong><span>新素材打進廣告後台,補上疲乏的素材</span></li>
+  </ol>
+  <div>
+    <div class="eyebrow" style="margin-bottom:.4rem">六種異常類型</div>
+    <ul class="chips">
+      <li>投放不足</li><li>素材不足</li><li>Lead 不足</li><li class="warn">素材疲乏</li><li>版位灌量</li><li>預算受限</li>
+    </ul>
+  </div>
+  <div class="fatigue">
+    <svg viewBox="0 0 320 150" role="img" aria-label="素材疲乏示意:近 14 天頻率上升、CTR 下滑">
+      <rect x="0" y="0" width="320" height="150" fill="transparent"/>
+      <line x1="36" y1="118" x2="300" y2="118" stroke="var(--line)" stroke-width="1"/>
+      <line x1="36" y1="20" x2="36" y2="118" stroke="var(--line)" stroke-width="1"/>
+      <polyline points="40,96 60,94 80,92 100,88 120,84 140,78 160,72 180,66 200,58 220,50 240,44 260,38 280,34 296,30" fill="none" stroke="var(--warn)" stroke-width="2.5" stroke-linecap="round"/>
+      <polyline points="40,40 60,42 80,43 100,46 120,50 140,56 160,62 180,70 200,78 220,86 240,92 260,98 280,102 296,106" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="296" cy="30" r="3.5" fill="var(--warn)"/>
+      <circle cx="296" cy="106" r="3.5" fill="var(--accent)"/>
+      <text x="300" y="26" font-size="11" fill="var(--warn)" font-family="var(--body)" text-anchor="end">頻率</text>
+      <text x="300" y="122" font-size="11" fill="var(--accent)" font-family="var(--body)" text-anchor="end" dy="12">CTR</text>
+      <text x="36" y="140" font-size="10" fill="var(--muted)" font-family="var(--body)">第 1 天</text>
+      <text x="300" y="140" font-size="10" fill="var(--muted)" font-family="var(--body)" text-anchor="end">第 14 天</text>
+    </svg>
+    <div>
+      <h3>什麼叫「素材疲乏」</h3>
+      <p class="cap" style="margin-top:.35rem">同一支素材被同一群人看了太多次。系統看近 14 天的頻率、CTR、CPM 走勢:頻率一路往上、CTR 一路往下,就標記。示意圖,非實際數據。</p>
+      <p class="cap" style="margin-top:.5rem">現況:監控分頁已建好,n8n 抓數工作流由 Dan 自建中;監控頁手機可看,正在整併進專案儀表板。</p>
+    </div>
+  </div>
+</section>
+
+<section id="work">
+  <div class="eyebrow">03 · 交給 George 的兩件事</div>
+  <h2>a. 素材建置 · b. 檔案上傳</h2>
+  <p>六步一輪。George 只碰第 3 步和第 5 步,不碰廣告後台。</p>
+  <div class="lanes">
+    <div class="lane l-sys">系統</div>
+    <div class="lane l-dan">Dan</div>
+    <div class="lane l-geo">George</div>
+    <div class="step" data-lane="sys" data-i="1"><span class="who">系統</span><span class="n">1</span><strong>標記素材疲乏</strong><span>某帳號進素材需求清單,系統或 Dan 通知 George</span></div>
+    <div class="step" data-lane="dan" data-i="2"><span class="who">Dan</span><span class="n">2</span><strong>給參考包</strong><span>品牌調性、過往素材、文案方向、尺寸規格</span></div>
+    <div class="step" data-lane="geo" data-i="3"><span class="who">George</span><span class="n">3</span><strong>做素材</strong><span>依參考包產出,先給 Dan 看</span></div>
+    <div class="step" data-lane="dan" data-i="4"><span class="who">Dan</span><span class="n">4</span><strong>確認或退修</strong><span>OK 就往下;要改就退一輪回第 3 步</span></div>
+    <div class="step" data-lane="geo" data-i="5"><span class="who">George</span><span class="n">5</span><strong>上傳雲端</strong><span>OK 的檔案放指定資料夾,照命名規則</span></div>
+    <div class="step" data-lane="dan" data-i="6"><span class="who">Dan</span><span class="n">6</span><strong>n8n 批量建廣告</strong><span>從雲端資料夾取檔,建進廣告後台</span></div>
+  </div>
+  <div class="legend">
+    <span><i style="background:var(--sys)"></i>系統自動</span>
+    <span><i style="background:var(--accent)"></i>Dan 處理</span>
+    <span><i style="background:var(--george)"></i>George 處理</span>
+  </div>
+  <p class="note">目標:客戶數增加時,補素材這段不卡在 Dan 一個人手上。</p>
+</section>
+
+<section id="tools">
+  <div class="eyebrow">04 · 工具</div>
+  <h2>George 會拿到一套 Claude Code 啟動包</h2>
+  <ul class="tools">
+    <li><strong>裝機由 Claude 帶 <span class="tag ok">已有</span></strong><span>照步驟一步一步做,George 只回答問題、按確認、申請帳號。</span></li>
+    <li><strong>審核閘門與 Telegram 確認 <span class="tag ok">已有</span></strong><span>Claude 要做有風險的動作時先推一張卡到手機,按同意才做。</span></li>
+    <li><strong>素材需求與參考包直接讀 <span class="tag ok">已有</span></strong><span>Google Sheet、Drive 資料夾由 Claude 讀取,不用自己翻。</span></li>
+    <li><strong>生圖工具鏈 <span class="tag plan">擴充中</span></strong><span>有底圖就套版位;要生場景或人像走 AI 生圖,先出一張給 Dan 看。</span></li>
+    <li><strong>會議紀錄讀取 <span class="tag plan">擴充中</span></strong><span>錄音或錄影丟進資料夾,Claude 轉成逐字稿並摘要。沿用 Dan 現行流程。</span></li>
+    <li><strong>啟動包版本 <span class="tag sys">v0.2.0 升級中</span></strong><span>同步 Dan 本機 9 月 20 日到 10 月 23 日的系統更新。</span></li>
+  </ul>
+</section>
+
+<section id="decide">
+  <div class="eyebrow">05 · 今天要定的事</div>
+  <h2>定了就勾,決議寫在格子裡</h2>
+  <ul class="decide" id="decideList">
+    <li><input type="checkbox" id="d1"><label for="d1">雲端資料夾位置與命名規則</label><small>放哪個 Drive 資料夾;檔名怎麼帶帳號、日期、尺寸</small><textarea id="n1" placeholder="決議"></textarea></li>
+    <li><input type="checkbox" id="d2"><label for="d2">參考包固定格式</label><small>Dan 每次提供什麼、放哪裡</small><textarea id="n2" placeholder="決議"></textarea></li>
+    <li><input type="checkbox" id="d3"><label for="d3">交件節奏</label><small>通知後幾天交初稿;最多修幾輪</small><textarea id="n3" placeholder="決議"></textarea></li>
+    <li><input type="checkbox" id="d4"><label for="d4">George 用什麼工具做圖</label><small>Canva、Photoshop,或 Claude Code 生圖</small><textarea id="n4" placeholder="決議"></textarea></li>
+    <li><input type="checkbox" id="d5"><label for="d5">先從哪幾個帳號開始</label><small>第一批試跑的帳號</small><textarea id="n5" placeholder="決議"></textarea></li>
+    <li><input type="checkbox" id="d6"><label for="d6">溝通通道</label><small>LINE 或 Telegram;通知誰、怎麼回報完成</small><textarea id="n6" placeholder="決議"></textarea></li>
+  </ul>
+  <div class="bar">
+    <button type="button" id="copyBtn">複製決議文字</button>
+    <button type="button" class="ghost" id="clearBtn">清空</button>
+    <span class="toast" id="toast">勾選與文字只存在這台裝置的瀏覽器。</span>
+  </div>
+</section>
+
+<footer>頁面日期 2026-10-24。系統現況依專案卡「Meta廣告異常監控」;啟動包內容依 George 版 cc-starter-kit。</footer>
+</div>
+
+<script>
+(function(){
+  var KEY='george-kickoff-20261024';
+  var list=document.getElementById('decideList');
+  var items=Array.prototype.slice.call(list.querySelectorAll('li'));
+  function load(){
+    var s=null; try{ s=JSON.parse(localStorage.getItem(KEY)||'null'); }catch(e){ s=null; }
+    if(!s) return;
+    items.forEach(function(li,i){
+      var cb=li.querySelector('input'), ta=li.querySelector('textarea');
+      if(s.c&&s.c[i]) cb.checked=true;
+      if(s.n&&s.n[i]) ta.value=s.n[i];
+      li.classList.toggle('done',cb.checked);
+    });
+  }
+  function save(){
+    var s={c:[],n:[]};
+    items.forEach(function(li){
+      s.c.push(li.querySelector('input').checked);
+      s.n.push(li.querySelector('textarea').value);
+    });
+    try{ localStorage.setItem(KEY,JSON.stringify(s)); }catch(e){}
+  }
+  items.forEach(function(li){
+    li.querySelector('input').addEventListener('change',function(){ li.classList.toggle('done',this.checked); save(); });
+    li.querySelector('textarea').addEventListener('input',save);
+  });
+  load();
+  var toast=document.getElementById('toast');
+  function text(){
+    var out=['George 協作啟動 決議 2026-10-24'];
+    items.forEach(function(li,i){
+      var cb=li.querySelector('input'), ta=li.querySelector('textarea'), lb=li.querySelector('label').textContent;
+      out.push((cb.checked?'[v] ':'[ ] ')+(i+1)+'. '+lb+(ta.value?':'+ta.value.replace(/\s+/g,' ').trim():''));
+    });
+    return out.join('\n');
+  }
+  document.getElementById('copyBtn').addEventListener('click',function(){
+    var t=text();
+    function fallback(){
+      var ta=document.createElement('textarea'); ta.value=t; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.left='-9999px';
+      document.body.appendChild(ta); ta.select();
+      var ok=false; try{ ok=document.execCommand('copy'); }catch(e){}
+      document.body.removeChild(ta);
+      toast.textContent=ok?'已複製。':'無法自動複製,請手動選取。';
+    }
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(t).then(function(){ toast.textContent='已複製。'; },fallback);
+    }else fallback();
+  });
+  document.getElementById('clearBtn').addEventListener('click',function(){
+    items.forEach(function(li){ li.querySelector('input').checked=false; li.querySelector('textarea').value=''; li.classList.remove('done'); });
+    save(); toast.textContent='已清空。';
+  });
+})();
+</script>
+
+</body>
+</html>
